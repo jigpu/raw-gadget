@@ -5,10 +5,13 @@ CFLAGS=-O2 -Wall -g
 
 .PHONY: all
 
-all: keyboard printer
+all: keyboard printer tablet
 
 keyboard: keyboard.c
 	$(CC) -o $@ $< $(CFLAGS)
 
 printer: printer.c
+	$(CC) -o $@ $< $(CFLAGS) -lpthread
+
+tablet: tablet.c
 	$(CC) -o $@ $< $(CFLAGS) -lpthread
