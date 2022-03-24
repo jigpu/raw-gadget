@@ -698,16 +698,29 @@ enum motion_direction {
 struct pen_report {
 	__u8 id;
 
+#if defined(__LITTLE_ENDIAN_BITFIELD)
 	bool tip     : 1;
 	bool barrel  : 1;
 	bool eraser  : 1;
 	bool invert  : 1;
-	bool xxx0    : 1;  // Padding
+	bool xxx0    : 1;
 	bool inrange : 1;
+	bool xxx1    : 1;
+	bool xxx2    : 1;
+#elif defined(__BIG_ENDIAN_BITFIELD)
+	bool xxx2    : 1;
+	bool xxx1    : 1;
+	bool inrange : 1;
+	bool xxx0    : 1;
+	bool invert  : 1;
+	bool eraser  : 1;
+	bool barrel  : 1;
+	bool tip     : 1;
+#endif
 
-	__u16 x;
-	__u16 y;
-	__u16 pressure;
+	__le16 x;
+	__le16 y;
+	__le16 pressure;
 } __attribute__((__packed__));
 
 void step(struct pen_report *report) {
@@ -718,30 +731,41 @@ void step(struct pen_report *report) {
 	static enum motion_direction direction = MOTION_RIGHT;
 
 	switch (direction) {
-		case MOTION_RIGHT:
-		report->x += STEPSIZE;
-		if (report->x >= MAX_X - BORDER) { direction = MOTION_DOWN; }
+		case MOTION_RIGHT: {
+			int x = __le16_to_cpu(report->x) + STEPSIZE;
+			if (x >= MAX_X - BORDER) { direction = MOTION_DOWN; }
+			report->x = __cpu_to_le16(x);
+		}
 		break;
 
-		case MOTION_DOWN:
-		report->y += STEPSIZE;
-		if (report->y >= MAX_Y - BORDER) { direction = MOTION_LEFT; }
+		case MOTION_DOWN: {
+			int y = __le16_to_cpu(report->y) + STEPSIZE;
+			if (y >= MAX_Y - BORDER) { direction = MOTION_LEFT; }
+			report->y = __cpu_to_le16(y);
+		}
 		break;
 
-		case MOTION_LEFT:
-		report->x -= STEPSIZE;
-		if (report->x <= BORDER) { direction = MOTION_UP; }
+		case MOTION_LEFT: {
+			int x = __le16_to_cpu(report->x) - STEPSIZE;
+			if (x <= BORDER) { direction = MOTION_UP; }
+			report->x = __cpu_to_le16(x);
+		}
 		break;
 
-		case MOTION_UP:
-		report->y -= STEPSIZE;
-		if (report->y <= BORDER) { direction = MOTION_RIGHT; }
+		case MOTION_UP: {
+			int y = __le16_to_cpu(report->y) - STEPSIZE;
+			if (y <= BORDER) { direction = MOTION_RIGHT; }
+			report->y = __cpu_to_le16(y);
+		}
 		break;
 	}
 }
 
 void print_report(struct pen_report *report) {
-	printf("Post-step:: X=%u, Y=%u, P=%u --- BYTES: ", report->x, report->y, report->pressure);
+	printf("Post-step:: X=%u, Y=%u, P=%u --- BYTES: ",
+				__le16_to_cpu(report->x),
+				__le16_to_cpu(report->y),
+				__le16_to_cpu(report->pressure));
 	for (size_t i = 0; i < sizeof(*report); i++) {
 		unsigned char *p = (unsigned char*)report;
 		printf("%02x ", *(p + i));
@@ -751,7 +775,12 @@ void print_report(struct pen_report *report) {
 
 void* ep_int_in_loop(void* arg) {
 	int fd = (int)(long)arg;
-	struct pen_report report = { 0, .id = 6, .inrange = true, .x = 2000, .y = 2000 };
+	struct pen_report report = { 0,
+		.id = 6,
+		.inrange = true,
+		.x = __constant_cpu_to_le16(2000),
+		.y = __constant_cpu_to_le16(2000),
+	};
 	struct usb_raw_int_io io;
 	io.inner.ep = ep_int_in;
 	io.inner.flags = 0;
