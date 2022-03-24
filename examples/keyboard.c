@@ -423,11 +423,11 @@ void log_event(struct usb_raw_event *event) {
 #define USB_VENDOR	0x046d
 #define USB_PRODUCT	0xc312 
 
-#define STRING_ID_MANUFACTURER	0
-#define STRING_ID_PRODUCT	1
-#define STRING_ID_SERIAL	2
-#define STRING_ID_CONFIG	3
-#define STRING_ID_INTERFACE	4
+#define STRING_ID_MANUFACTURER	1
+#define STRING_ID_PRODUCT	2
+#define STRING_ID_SERIAL	3
+#define STRING_ID_CONFIG	4
+#define STRING_ID_INTERFACE	5
 
 #define EP_MAX_PACKET_CONTROL	64
 #define EP_MAX_PACKET_INT	8
