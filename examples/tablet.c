@@ -551,6 +551,15 @@ char usb_hid_report[] = {
 	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
 	0x75, 0x10,         /*          Report Size (16),           */
 	0x81, 0x02,         /*          Input (Variable),           */
+	0x09, 0x3D,         /*          Usage (X Tilt),             */
+	0x09, 0x3E,         /*          Usage (Y Tilt),             */
+	0x26, 0x28, 0x23,   /*          Logical Maximum (9000),     */
+	0x46, 0x28, 0x23,   /*          Physical Maximum (9000),    */
+	0x65, 0x14,         /*          Unit (Degrees),             */
+	0x55, 0x0E,         /*          Unit Exponent (14),         */
+	0x75, 0x10,         /*          Report Size (16),           */
+	0x95, 0x02,         /*          Report Count (2),           */
+	0x81, 0x02,         /*          Input (Variable),           */
 	0xC0,               /*      End Collection,                 */
 	0xC0                /*  End Collection                      */
 };
@@ -721,6 +730,8 @@ struct pen_report {
 	__le16 x;
 	__le16 y;
 	__le16 pressure;
+	__le16 tilt_x;
+	__le16 tilt_y;
 } __attribute__((__packed__));
 
 void step(struct pen_report *report) {
