@@ -444,7 +444,7 @@ const char16_t product_en_us[] = u"Software Tablet";
 const char16_t serial_en_us[] = u"19830712";
 
 #define EP_MAX_PACKET_CONTROL	64
-#define EP_MAX_PACKET_INT	8
+#define EP_MAX_PACKET_INT	64
 
 // Assigned dynamically.
 #define EP_NUM_INT_IN	0x0
